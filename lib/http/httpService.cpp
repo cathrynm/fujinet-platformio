@@ -368,6 +368,10 @@ esp_err_t fnHttpService::get_handler_print(httpd_req_t *req)
 esp_err_t fnHttpService::get_handler_modem_sniffer(httpd_req_t *req)
 {
     Debug_printf("Modem Sniffer output request handler\n");
+    if (!sioR)
+    {
+        return ESP_FAIL;
+    }
     ModemSniffer *modemSniffer = sioR->get_modem_sniffer();
     Debug_printf("Got modem Sniffer.\n");
     time_t now = fnSystem.millis();

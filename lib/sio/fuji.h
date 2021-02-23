@@ -107,6 +107,8 @@ protected:
     void sio_get_device_filename();    // 0xDA
     void sio_set_boot_config();        // 0xD9
     void sio_copy_file();              // 0xD8
+    void sio_rs232_enable();           // 0xD7
+    void sio_rs232_disable();          // 0xD6
 
     void sio_status() override;
     void sio_process(uint32_t commanddata, uint8_t checksum) override;

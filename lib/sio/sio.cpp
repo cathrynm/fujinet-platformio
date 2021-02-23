@@ -432,6 +432,10 @@ void sioBus::addDevice(sioDevice *pDevice, int device_id)
 // Note that the destructor is called on the device!
 void sioBus::remDevice(sioDevice *p)
 {
+    if (p->_devnum ==  SIO_DEVICEID_RS232)
+    {
+        _modemDev = nullptr;
+    }
     _daisyChain.remove(p);
 }
 

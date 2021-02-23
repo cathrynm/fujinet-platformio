@@ -9,6 +9,7 @@
 #include "../utils/utils.h"
 #include "../FileSystem/fnFsSPIF.h"
 #include "../config/fnConfig.h"
+#include "modem.h"
 
 #define SIO_FUJICMD_RESET 0xFF
 #define SIO_FUJICMD_GET_SSID 0xFE
@@ -43,6 +44,8 @@
 #define SIO_FUJICMD_GET_DEVICE_FULLPATH 0xDA
 #define SIO_FUJICMD_CONFIG_BOOT 0xD9
 #define SIO_FUJICMD_COPY_FILE 0xD8
+#define SIO_FUJICMD_RS232_ENABLE 0xD7
+#define SIO_FUJICMD_RS232_DISABLE 0xD6
 #define SIO_FUJICMD_STATUS 0x53
 #define SIO_FUJICMD_HSIO_INDEX 0x3F
 
@@ -50,6 +53,7 @@ sioFuji theFuji; // global fuji device object
 
 //sioDisk sioDiskDevs[MAX_HOSTS];
 sioNetwork sioNetDevs[MAX_NETWORK_DEVICES];
+extern sioModem *sioR;
 
 bool _validate_host_slot(uint8_t slot, const char *dmsg = nullptr);
 bool _validate_device_slot(uint8_t slot, const char *dmsg = nullptr);
@@ -461,6 +465,29 @@ void sioFuji::sio_copy_file()
     fclose(sourceFile);
     fclose(destFile);
     free(dataBuf);
+}
+
+void sioFuji::sio_rs232_enable()
+{
+    Config.store_rs232_enabled(true);
+    Config.save();
+    if (!sioR)
+    {
+        FileSystem *ptrfs = fnSDFAT.running() ? (FileSystem *)&fnSDFAT : (FileSystem *)&fnSPIFFS;
+        sioR = new sioModem(ptrfs, Config.get_modem_sniffer_enabled());
+        SIO.addDevice(sioR, SIO_DEVICEID_RS232);
+    }
+}
+
+void sioFuji::sio_rs232_disable()
+{
+    Config.store_rs232_enabled(false);
+    Config.save();
+    if (sioR)
+    {
+        SIO.remDevice(sioR);
+        sioR = nullptr;
+    }
 }
 
 char *_generate_appkey_filename(appkey *info)
@@ -1574,6 +1601,12 @@ void sioFuji::sio_process(uint32_t commanddata, uint8_t checksum)
     case SIO_FUJICMD_COPY_FILE:
         sio_ack();
         sio_copy_file();
+        break;
+    case SIO_FUJICMD_RS232_ENABLE:
+        sio_ack();
+        break;
+    case SIO_FUJICMD_RS232_DISABLE:
+        sio_ack();
         break;
     default:
         sio_nak();

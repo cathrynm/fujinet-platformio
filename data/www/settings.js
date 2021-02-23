@@ -10,7 +10,7 @@ function writeLocaleNumber(num) {
 function selectListValue(selectName, currentValue) {
 	var mySelect = document.getElementById(selectName);
 	var opts = mySelect.options;
-	
+
 	for (var opt, j = 0; opt = opts[j]; j++) {
 		if (opt.value == currentValue) {
 			mySelect.selectedIndex = j;
@@ -24,5 +24,6 @@ selectListValue("select_printerport1", current_printerport);
 selectListValue("select_hsioindex", current_hsioindex);
 selectListValue("select_rotation_sounds", current_rotation_sounds);
 selectListValue("select_config_enable", current_config_enabled);
+selectListValue("select_rs232_enable", current_rs232_enabled);
 selectListValue("select_play_record", current_play_record);
 selectListValue("select_pulldown", current_pulldown);

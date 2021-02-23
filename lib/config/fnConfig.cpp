@@ -410,6 +410,17 @@ void fnConfig::store_modem_sniffer_enabled(bool _enabled)
     _dirty = true;
 }
 
+
+void fnConfig::store_rs232_enabled(bool _enabled)
+{
+    if (_modem.enabled == _enabled)
+        return;
+
+    _modem.enabled = _enabled;
+    _dirty = true;
+}
+
+
 bool fnConfig::get_cassette_buttons()
 {
     return _cassette.button;
@@ -533,6 +544,7 @@ void fnConfig::save()
     // MODEM
     ss << LINETERM << "[Modem]" << LINETERM;
     ss << "sniffer_enabled=" << _modem.sniffer_enabled << LINETERM;
+    ss << "enabled=" << _modem.enabled << LINETERM;
 
     //PHONEBOOK
     for (i = 0; i < MAX_PB_SLOTS; i++)
@@ -967,6 +979,9 @@ void fnConfig::_read_section_modem(std::stringstream &ss)
             if (strcasecmp(name.c_str(), "sniffer_enabled") == 0)
             {
                 _modem.sniffer_enabled = util_string_value_is_true(value);
+            } else if (strcasecmp(name.c_str(), "enabled") == 0)
+            {
+                _modem.enabled = util_string_value_is_true(value);
             }
         }
     }

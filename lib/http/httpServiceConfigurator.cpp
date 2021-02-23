@@ -14,7 +14,9 @@
 #include "utils.h"
 
 #include "fuji.h"
+#include "modem.h"
 extern sioFuji theFuji;
+extern sioModem *sioR;
 
 // TODO: This was copied from another source and needs some bounds-checking!
 char *fnHttpServiceConfigurator::url_decode(char *dst, const char *src, size_t dstsize)
@@ -177,6 +179,33 @@ void fnHttpServiceConfigurator::config_enable_config(std::string enable_config)
     Config.save();
 }
 
+void fnHttpServiceConfigurator::config_rs232_enable(std::string rs232_enable)
+{
+    Debug_printf("New rs232 enable value: %s\n", rs232_enable.c_str());
+    if (Config.get_rs232_enabled() != util_string_value_is_true(rs232_enable))
+    {
+        Config.store_rs232_enabled(util_string_value_is_true(rs232_enable));
+        Config.save();
+        if (util_string_value_is_true(rs232_enable))
+        {
+            if (!sioR)
+            {
+                FileSystem *ptrfs = fnSDFAT.running() ? (FileSystem *)&fnSDFAT : (FileSystem *)&fnSPIFFS;
+                sioR = new sioModem(ptrfs, Config.get_modem_sniffer_enabled());
+                SIO.addDevice(sioR, SIO_DEVICEID_RS232); // R:
+            }
+        }
+        else
+        {
+            if (sioR)
+            {
+                SIO.remDevice(sioR);
+                sioR = nullptr;
+            }
+        }
+    }
+}
+
 void fnHttpServiceConfigurator::config_cassette(std::string play_record, std::string resistor, bool rew)
 {
     // call the cassette buttons function passing play_record.c_str()
@@ -329,6 +358,10 @@ int fnHttpServiceConfigurator::process_config_post(const char *postdata, size_t 
         else if (i->first.compare("config_enable") == 0)
         {
             config_enable_config(i->second);
+        }
+        else if (i->first.compare("rs232_enable") == 0)
+        {
+            config_rs232_enable(i->second);
         }
     }
 

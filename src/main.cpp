@@ -116,9 +116,15 @@ void main_setup()
 
     SIO.addDevice(ptr, SIO_DEVICEID_PRINTER + fnPrinters.get_port(0)); // P:
 
-    sioR = new sioModem(ptrfs, false); // turned off by default.
-    
-    SIO.addDevice(sioR, SIO_DEVICEID_RS232); // R:
+    if ( Config.get_rs232_enabled() )
+    {
+        sioR = new sioModem(ptrfs, false); // turned off by default.
+        SIO.addDevice(sioR, SIO_DEVICEID_RS232); // R:
+    }
+    else
+    {
+        sioR =  nullptr;
+    }
 
     SIO.addDevice(&sioV, SIO_DEVICEID_FN_VOICE); // P3:
 

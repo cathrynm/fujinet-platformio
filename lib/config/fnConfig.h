@@ -108,6 +108,8 @@ public:
     // MODEM
     void store_modem_sniffer_enabled(bool enabled);
     bool get_modem_sniffer_enabled() { return _modem.sniffer_enabled; }
+    void store_rs232_enabled(bool enabled);
+    bool get_rs232_enabled() { return _modem.enabled; }
 
     // CASSETTE
     bool get_cassette_buttons();
@@ -228,6 +230,7 @@ private:
     struct modem_info
     {
         bool sniffer_enabled = false;
+        bool enabled = true;
     };
 
     struct cassette_info
